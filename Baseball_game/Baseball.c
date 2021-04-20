@@ -3,15 +3,46 @@
 #include <Windows.h>
 #include <process.h>
 
-HANDLE hThread;
-DWORD idThread;
+
+#ifndef _COLOR_LIST_
+#define _COLOR_LIST_
+
+enum {
+	black,
+	blue,
+	green,
+	cyan,//mint
+	red,
+	purple,
+	brown,
+	lightgray,
+	darkgray,
+	lightblue,
+	lightgreen,
+	lightcyan,
+	lightred,
+	lightpurple,
+	yellow,
+	white
+};
+
+#endif
+
+
+HANDLE g_hThread;
+DWORD g_idThread;
 
 DWORD __stdcall Animation_threadfunc(void);
 
 void gotoXY(int x, int y);
+void setColor(unsigned short color);
 
 int main(void)
 {
+	system("mode con:cols=500 lines=500");
+	system("color F");
+	setColor(black);
+	SetConsoleTitle(TEXT("Baseball_Game"));
 	int answer = 0;
 	do {
 		system("cls");
@@ -21,28 +52,38 @@ int main(void)
 		printf("1. START");
 		gotoXY(5, 8);
 		printf("2. EXIT");
+		gotoXY(5, 9);
+		printf("Input : ");
+		fflush(stdin);
 		scanf_s("%d", &answer);
-
+		getchar();
 	} while (answer != 1 && answer != 2);
 
 	if (answer == 2)
 		return 1;
-
-	hThread = _beginthreadex(NULL,
+	system("cls");
+	g_hThread = _beginthreadex(NULL,
 		NULL,
 		Animation_threadfunc,
 		NULL,
 		NULL,
-		(unsigned int*)&idThread);
+		(unsigned int*)&g_idThread);
 
-	int v, seta;
+	int v, theta;
 	do {
+		gotoXY(50, 50);
+		printf("v : ");
+		scanf_s("%d", &v);
+		getchar();
+		printf("theta : ");
+		scanf_s("%d", &theta);
+		getchar();
+	} while (v != -1 && theta != -1);
 
-	} while (v != -1 && seta != -1);
-
-	_getch();
+	WaitForSingleObject(g_hThread, INFINITE);
 	puts("Press any key to exit");
-	CloseHandle(hThread);
+	_getch();
+	CloseHandle(g_hThread);
 
 	return 0;
 }
@@ -50,10 +91,15 @@ int main(void)
 DWORD __stdcall Animation_threadfunc(void)
 {
 
+	return 0;
 }
 
 void gotoXY(int x, int y)
 {
 	COORD pos = { x,y };
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
+}
+
+void setColor(unsigned short color) {
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
 }
