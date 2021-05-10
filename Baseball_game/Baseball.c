@@ -8,6 +8,7 @@
 #define ARM 196
 #define BAT_1 186
 #define BAT_2 61
+#define BALL 248
 #define FIRST_X_BATTER 10
 #define FIRST_Y_BATTER 30
 #define FIRST_X_PITCHER 60
@@ -34,6 +35,7 @@ enum {
 
 void (*PrintBatter[7])(void);
 void (*PrintPitcher[7])(void);
+void (*PrintBall[5])(void);
 
 void PrintBatter1(int frame);
 void PrintBatter2(int frame);
@@ -49,6 +51,13 @@ void PrintPitcher4(int frame);
 void PrintPitcher5(int frame);
 void PrintPitcher6(int frame);
 void PrintPitcher7(int frame);
+void PrintBall1(void);
+void PrintBall2(void);
+void PrintBall3(void);
+void PrintBall4(void);
+void PrintBall5(void);
+
+void PrintHit(void);
 
 void gotoXY(int x, int y);
 void setColor(unsigned short color);
@@ -72,6 +81,12 @@ int main(void)
 	PrintPitcher[4] = PrintPitcher5;
 	PrintPitcher[5] = PrintPitcher6;
 	PrintPitcher[6] = PrintPitcher7;
+
+	PrintBall[0] = PrintBall1;
+	PrintBall[1] = PrintBall2;
+	PrintBall[2] = PrintBall3;
+	PrintBall[3] = PrintBall4;
+	PrintBall[4] = PrintBall5;
 
 	system("mode con:cols=500 lines=500");
 	system("color F");
@@ -97,28 +112,51 @@ int main(void)
 	system("cls");
 
 	int ball_x = 0, ball_y = 0;
-	int v = 0, theta = 0, batter_time = 0, pitcher_time = 0;
-	BOOL hit_flag = FALSE;
-	do {
+	int v = 0, theta = 0, batter_time = 0, pitcher_time = 0, ball_time = 0;
+	BOOL swinging_bat = FALSE, throwing_ball = FALSE;
+	do 
+	{
 		PrintBatter[0]();
 		gotoXY(1, 1);
 		printf("Enter v : -1 theta : -1 to Exit");
 
-		if (hit_flag == TRUE)
+		if ((batter_time >= 2 && batter_time <= 3) && (ball_time == 4))
+			PrintHit();
+
+		if (swinging_bat == TRUE)
 		{
 			PrintBatter[batter_time]();
 			batter_time++;
 			if (batter_time == 7)
 			{
 				batter_time = 0;
-				hit_flag = FALSE;
+				swinging_bat = FALSE;
 			}
 		}
 
-		PrintPitcher[pitcher_time]();
-		pitcher_time++;
-		if (pitcher_time == 7)
-			pitcher_time = 0;
+		if (throwing_ball == FALSE)
+		{
+			PrintPitcher[pitcher_time]();
+			pitcher_time++;
+			if (pitcher_time == 7)
+			{
+				pitcher_time = 0;
+				throwing_ball = TRUE;
+			}
+		}
+		else
+			PrintPitcher[0]();
+
+		if (throwing_ball == TRUE)
+		{
+			PrintBall[ball_time]();
+			ball_time++;
+			if (ball_time == 5)
+			{
+				ball_time = 0;
+				throwing_ball = FALSE;
+			}
+		}
 
 		if (_kbhit())
 		{
@@ -135,9 +173,9 @@ int main(void)
 				getchar();
 			}
 			else
-				hit_flag = TRUE;
+				swinging_bat = TRUE;
 		}
-		Sleep(200);
+		Sleep(120);
 		system("cls");
 	} while (v != -1 && theta != -1);
 
@@ -291,6 +329,44 @@ void PrintPitcher7(void)
 	printf("%c%c%c", BODYBLOCK, BODYBLOCK, BODYBLOCK);
 	gotoXY(FIRST_X_PITCHER, FIRST_Y_PITCHER + 2);
 	printf("%c  %c", BODYBLOCK, BODYBLOCK);
+}
+
+//-------------------------------------------------------
+
+void PrintBall1(void)
+{
+	gotoXY(FIRST_X_PITCHER - 2, FIRST_Y_PITCHER);
+	printf("%c", BALL);
+}
+
+void PrintBall2(void)
+{
+	gotoXY(FIRST_X_PITCHER - 11, FIRST_Y_PITCHER);
+	printf("%c", BALL);
+}
+
+void PrintBall3(void)
+{
+	gotoXY(FIRST_X_PITCHER - 22, FIRST_Y_PITCHER);
+	printf("%c", BALL);
+}
+
+void PrintBall4(void)
+{
+	gotoXY(FIRST_X_PITCHER - 31, FIRST_Y_PITCHER);
+	printf("%c", BALL);
+}
+
+void PrintBall5(void)
+{
+	gotoXY(FIRST_X_PITCHER - 40, FIRST_Y_PITCHER);
+	printf("%c", BALL);
+}
+
+void PrintHit(void)
+{
+	gotoXY(FIRST_X_BATTER - 1, FIRST_Y_BATTER - 3);
+	printf("Hit!");
 }
 
 void gotoXY(int x, int y)
