@@ -87,6 +87,11 @@ void PrintTarget(void);
 unsigned int Get_FIRST_X_TARGET(void);
 unsigned int Get_FIRST_Y_TARGET(void);
 
+BOOL g_isEnteringVandDegree = FALSE;
+CRITICAL_SECTION g_cs_isEnteringVandDegree;
+BOOL GetisEnteringVandDegree(void);
+void ChangeisEnteringVandDegree(BOOL value);
+
 void WINAPI ThreadFunc(LPVOID Param);
 long double Parabola(unsigned int degree, unsigned int v, unsigned int x);
 
@@ -140,6 +145,7 @@ int main(void)
 		return 1;
 	system("cls");
 
+	InitializeCriticalSection(&g_cs_isEnteringVandDegree);
 	InitializeCriticalSection(&g_cs_points);
 	InitializeCriticalSection(&g_cs_targets);
 
@@ -216,6 +222,8 @@ int main(void)
 			char x = _getch();
 			if (x == 'c' || x == 'C')
 			{
+				ChangeisEnteringVandDegree(TRUE);
+				Sleep(10);
 				gotoXY(50, 45);
 				printf("v : ");
 				scanf_s("%d", &v);
@@ -224,6 +232,7 @@ int main(void)
 				printf("theta : ");
 				scanf_s("%d", &degree);
 				getchar();
+				ChangeisEnteringVandDegree(FALSE);
 			}
 			else
 				swinging_bat = TRUE;
@@ -232,6 +241,7 @@ int main(void)
 		system("cls");
 	} while (v != -1 && degree != -1);
 
+	DeleteCriticalSection(&g_cs_isEnteringVandDegree);
 	DeleteCriticalSection(&g_cs_points);
 	DeleteCriticalSection(&g_cs_targets);
 
@@ -478,11 +488,10 @@ void WINAPI ThreadFunc(LPVOID Param)
 	unsigned int time_x = 0;
 	while (1)
 	{
-		EraseUI(present_x, present_y);
 		PrintFloatingBall(time_x, degree, v, &present_x, &present_y);
 		time_x++;
 
-		if (present_x >= FIRST_X_PITCHER + 150 
+		if (present_x >= FIRST_X_PITCHER + 130 
 			|| present_y >= FIRST_Y_PITCHER + 3)
 			break;
 
@@ -505,7 +514,12 @@ void WINAPI ThreadFunc(LPVOID Param)
 			break;
 		}
 
-		Sleep(50);
+		while (GetisEnteringVandDegree() == TRUE)
+			Sleep(10);
+
+		Sleep(60);
+
+		EraseUI(present_x, present_y);
 	}
 	free(Param);
 }
@@ -606,6 +620,22 @@ unsigned int Get_FIRST_Y_TARGET(void)
 	result = g_target_y;
 	LeaveCriticalSection(&g_cs_targets);
 	return result;
+}
+
+BOOL GetisEnteringVandDegree(void)
+{
+	BOOL result = 0;
+	EnterCriticalSection(&g_cs_isEnteringVandDegree);
+	result = g_isEnteringVandDegree;
+	LeaveCriticalSection(&g_cs_isEnteringVandDegree);
+	return result;
+}
+
+void ChangeisEnteringVandDegree(BOOL value)
+{
+	EnterCriticalSection(&g_cs_isEnteringVandDegree);
+	g_isEnteringVandDegree = value;
+	LeaveCriticalSection(&g_cs_isEnteringVandDegree);
 }
 
 void Error(const char* message)
