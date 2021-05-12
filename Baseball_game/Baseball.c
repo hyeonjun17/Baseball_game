@@ -223,13 +223,13 @@ int main(void)
 			if (x == 'c' || x == 'C')
 			{
 				ChangeisEnteringVandDegree(TRUE);
-				Sleep(10);
+				Sleep(200);
 				gotoXY(50, 45);
 				printf("v : ");
 				scanf_s("%d", &v);
 				getchar();
 				gotoXY(60, 45);
-				printf("theta : ");
+				printf("degree : ");
 				scanf_s("%d", &degree);
 				getchar();
 				ChangeisEnteringVandDegree(FALSE);
@@ -241,12 +241,13 @@ int main(void)
 		system("cls");
 	} while (v != -1 && degree != -1);
 
+	puts("Press any key to exit");
+	_getch();
+
+
 	DeleteCriticalSection(&g_cs_isEnteringVandDegree);
 	DeleteCriticalSection(&g_cs_points);
 	DeleteCriticalSection(&g_cs_targets);
-
-	puts("Press any key to exit");
-	_getch();
 
 	return 0;
 }
