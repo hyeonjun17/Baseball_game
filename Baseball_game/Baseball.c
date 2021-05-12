@@ -504,9 +504,9 @@ void WINAPI ThreadFunc(LPVOID Param)
 
 		unsigned int present_target_x = Get_FIRST_X_TARGET();
 		unsigned int present_target_y = Get_FIRST_Y_TARGET();
-		if ((present_target_x == present_x && present_target_y == present_y)
-			|| (present_target_x - 1 == present_x && present_target_y + 1 == present_y)
-			|| (present_target_x - 2 == present_x && present_target_y + 2 == present_y))
+		if (((present_target_x - 1 <= present_x && present_target_x + 1 >= present_x) && present_target_y == present_y)
+			|| ((present_target_x - 2 <= present_x && present_target_x >= present_x) && present_target_y + 1 == present_y)
+			|| ((present_target_x - 3 <= present_x && present_target_x - 1 >= present_x) && present_target_y + 2 == present_y))
 		{
 			gotoXY(present_target_x - 2, present_target_y);
 			printf("+1 Point!");
