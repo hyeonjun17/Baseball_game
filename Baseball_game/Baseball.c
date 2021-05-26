@@ -163,7 +163,7 @@ int main(void)
 		PrintTarget();
 		PrintBatter[0]();
 		gotoXY(1, 1);
-		printf("Enter v : -1 theta : -1 to Exit");
+		printf("Enter v : -1 degree : -1 to Exit");
 
 		PrintPoints();
 
